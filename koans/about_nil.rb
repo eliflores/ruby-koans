@@ -33,6 +33,8 @@ class AboutNil < Neo::Koan
     # or
     #    obj == nil
     # Why?
+    # >> obj.nil? is better because is more readable and more efficient, == will
+    # perform a comparison with the other object to determine if it is the same object.
   end
 
 end
