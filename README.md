@@ -2,4 +2,4 @@
 
 [Ruby Koans](http://rubykoans.com/) :-)
 
-Have you reached enlightenment? :-d
+Have you reached enlightenment? :-D
