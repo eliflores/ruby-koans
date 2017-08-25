@@ -29,25 +29,48 @@ require File.expand_path(File.dirname(__FILE__) + '/neo')
 #
 # Your goal is to write the score method.
 
-def score(dice)
-  return 0 if dice.empty?
+def calculate_occurrences(dice_throws)
+  dice_throws.each_with_object(Hash.new(0)) { |number, counts| counts[number] += 1 }
+end
 
-  score = 0
-  number_of_ones = (dice.select { |item| item == 1 }).size
-  score += 1000 if number_of_ones >= 3
-  number_of_individual_ones = number_of_ones >= 3 ? (number_of_ones - 3).abs : number_of_ones
-  score += number_of_individual_ones * 100
+def occurrences_not_in_a_set_of_three(number_of_occurrences, has_set_of_three)
+  has_set_of_three ? (number_of_occurrences - 3).abs : number_of_occurrences
+end
 
-  number_of_fives = (dice.select { |item| item == 5 }).size
-  number_of_individual_fives = number_of_fives >= 3 ? (number_of_fives - 3).abs : number_of_fives
-  score += number_of_individual_fives * 50
+def has_set_of_three?(occurrences)
+  occurrences >= 3
+end
 
-  non_ones = dice.reject { |item| item == 1 }
-  non_ones_occurrences_hash = non_ones.each_with_object(Hash.new(0)) { |number, counts| counts[number] += 1 }
-  other_triples_arr = non_ones_occurrences_hash.find { |_, ocurrences| ocurrences >= 3 }
-  score += other_triples_arr[0] * 100 if other_triples_arr
+def number_with_sets_of_three_other_than_one(occurrences)
+  sets_of_three_other_than_one = occurrences.select { |number, occurrences| number != 1 && occurrences >= 3 }
+  sets_of_three_other_than_one.empty? ? 0 : sets_of_three_other_than_one.keys[0]
+end
 
-  score
+def calculate_score_of_ones(occurrences_of_one)
+  has_set_of_three_ones = has_set_of_three?(occurrences_of_one)
+  ones_not_part_of_a_set_of_three = occurrences_not_in_a_set_of_three(occurrences_of_one, has_set_of_three_ones)
+  (has_set_of_three_ones ? 1000 : 0) + (ones_not_part_of_a_set_of_three * 100)
+end
+
+def calculate_score_of_single_fives(occurrences_of_five)
+  has_set_of_three_fives = has_set_of_three?(occurrences_of_five)
+  fives_not_part_of_a_set_of_three = occurrences_not_in_a_set_of_three(occurrences_of_five, has_set_of_three_fives)
+  fives_not_part_of_a_set_of_three * 50
+end
+
+def calculate_score_of_sets_other_than_one(occurrences)
+  number_with_sets_of_three_other_than_one(occurrences) * 100
+end
+
+def score(dice_throws)
+  raise ArgumentError, 'Number of dices should not be greater than 5' if dice_throws.size > 5
+  return 0 if dice_throws.empty?
+
+  occurrences_per_number = calculate_occurrences(dice_throws)
+
+  calculate_score_of_ones(occurrences_per_number[1]) +
+    calculate_score_of_single_fives(occurrences_per_number[5]) +
+    calculate_score_of_sets_other_than_one(occurrences_per_number)
 end
 
 class AboutScoringProject < Neo::Koan
