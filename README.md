@@ -1,3 +1,5 @@
 # Ruby Koans
 
-This is my progress on the [Ruby Koans](http://rubykoans.com/) :-)
+[Ruby Koans](http://rubykoans.com/) :-)
+
+Have you reached enlightenment? :-d
