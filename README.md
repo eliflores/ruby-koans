@@ -1,5 +1,5 @@
 # Ruby Koans
 
-[Ruby Koans](http://rubykoans.com/) :-)
+Learn more about Ruby Koans [Here](http://rubykoans.com/) :-)
 
 Have you reached enlightenment? :-D
