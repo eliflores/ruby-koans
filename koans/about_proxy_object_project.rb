@@ -15,10 +15,51 @@ require File.expand_path(File.dirname(__FILE__) + '/neo')
 class Proxy
   def initialize(target_object)
     @object = target_object
-    # ADD MORE CODE HERE
+    @object_method_calls = Hash.new(0)
+    @methods_names_to_respond = target_object.methods - Object.methods
   end
 
-  # WRITE CODE HERE
+  def method_missing(method_name, *args, &block)
+    if @methods_names_to_respond.include?(method_name)
+      forward_call(method_name, *args)
+    else
+      super(method_name, *args, &block)
+    end
+  end
+
+  def respond_to_missing?(symbol, include_all)
+    super
+  end
+
+  def respond_to?(method_name)
+    if @methods_names_to_respond.include?(method_name)
+      true
+    else
+      super(method_name)
+    end
+  end
+
+  def forward_call(method_name, *args)
+    method_name_as_sym = method_name.to_sym
+    @object_method_calls[method_name_as_sym] = @object_method_calls[method_name_as_sym] + 1
+    if args.empty?
+      @object.send(method_name_as_sym)
+    else
+      @object.send(method_name_as_sym, *args)
+    end
+  end
+
+  def messages
+    @object_method_calls.keys
+  end
+
+  def called?(method_name)
+    @object_method_calls.keys.include?(method_name)
+  end
+
+  def number_of_times_called(method_name)
+    @object_method_calls[method_name]
+  end
 end
 
 # The proxy object should pass the following Koan:
@@ -67,7 +108,7 @@ class AboutProxyObjectProject < Neo::Koan
     tv.power
 
     assert tv.called?(:power)
-    assert ! tv.called?(:channel)
+    assert !tv.called?(:channel)
   end
 
   def test_proxy_counts_method_calls
@@ -130,7 +171,7 @@ class TelevisionTest < Neo::Koan
     tv.power
     tv.power
 
-    assert ! tv.on?
+    assert !tv.on?
   end
 
   def test_edge_case_on_off
@@ -144,7 +185,7 @@ class TelevisionTest < Neo::Koan
 
     tv.power
 
-    assert ! tv.on?
+    assert !tv.on?
   end
 
   def test_can_set_the_channel
